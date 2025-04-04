@@ -10,6 +10,7 @@ export function jwtInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): 
   console.log("Dentro del interceptador");
 
   const token = localStorage.getItem('access_token');
+  const tokenRefresh = localStorage.getItem('refresh_token');
   const router = inject(Router);
   const toastr = inject(ToastrService);
 
@@ -20,11 +21,18 @@ export function jwtInterceptor(req: HttpRequest<unknown>, next: HttpHandlerFn): 
       }
     });
   }
+  else if (tokenRefresh) {
+    req = req.clone({
+      setHeaders: {
+        Authorization: `Bearer ${tokenRefresh}`
+      }
+    });
+  }
 
   return next(req).pipe(
     catchError((error) => {
       if (error.status === 401) {
-        localStorage.removeItem('access_token'); // Neteja token si no és vàlid
+        localStorage.removeItem('access_token');
         toastr.error(
           'Su sesión ha expirado. Por favor, inicie sesión nuevamente.',
           'Sesión Expirada',

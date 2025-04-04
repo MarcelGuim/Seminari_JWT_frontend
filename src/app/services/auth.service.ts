@@ -12,6 +12,12 @@ export class AuthService {
   login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post(`${this.apiUrl}/login`, credentials);
   }
+
+  getRefreshToken(credentials: { email: string; password: string, accesToken:string }): Observable<any> {
+    return this.http.post(`${this.apiUrl}/refresh`, credentials);
+  }
+
+
   loginWithGoogle(): void {
     window.location.href = `${this.apiUrl}/google`;
   }
@@ -28,5 +34,7 @@ export class AuthService {
   logout(): void {
     localStorage.removeItem('access_token');
   }
+
+
 }
 

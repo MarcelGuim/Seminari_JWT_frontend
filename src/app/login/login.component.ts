@@ -4,6 +4,7 @@ import { FormGroup, FormBuilder, ReactiveFormsModule, Validators } from '@angula
 import { AuthService } from '../services/auth.service';
 import { OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
+import { User } from '../models/user.model';
 
 @Component({
   selector: 'app-login',
@@ -50,7 +51,7 @@ export class LoginComponent implements OnInit {
       
     });
     this.formularioLogin = this.form.group({
-      email: ['joan1234@example.com', [Validators.required, Validators.email]], // Valor predeterminado para el email
+      email: ['marcel@example.com', [Validators.required, Validators.email]], // Valor predeterminado para el email
       password: ['12345678', [Validators.required, Validators.minLength(8)]] // Valor predeterminado para la contraseña
     });
   };
@@ -70,7 +71,21 @@ export class LoginComponent implements OnInit {
     this.authService.login(loginData).subscribe({
       next: (response) => {
         console.log('Login exitoso:', response);
-        localStorage.setItem('access_token', response.token);
+        const token = response.token
+        const user:User = response.user
+        localStorage.setItem('access_token', token);
+        loginData.accesToken = token;
+        console.log(loginData);
+        const payload = JSON.parse(atob(token.split(".")[1]));
+        console.log("Expira a:", new Date(payload.exp * 1000));
+        this.authService.getRefreshToken(loginData).subscribe({
+          next: (response) => {
+            const token = response.token
+            localStorage.setItem('refresh_token', token);
+            const payload = JSON.parse(atob(token.split(".")[1]));
+            console.log("Refresh token expira en:", new Date(payload.exp * 1000));
+          }
+        })
         this.exportLoggedIn.emit(true);
       },
       error: (error) => {

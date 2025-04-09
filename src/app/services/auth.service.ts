@@ -13,7 +13,7 @@ export class AuthService {
     return this.http.post(`${this.apiUrl}/login`, credentials);
   }
 
-  getRefreshToken(credentials: { email: string; password: string, accesToken:string }): Observable<any> {
+  generateAccesTokenFromRefreshToken(credentials: {refreshToken: string} ): Observable<any> {
     return this.http.post(`${this.apiUrl}/refresh`, credentials);
   }
 

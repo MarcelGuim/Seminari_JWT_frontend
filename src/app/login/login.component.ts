@@ -71,21 +71,15 @@ export class LoginComponent implements OnInit {
     this.authService.login(loginData).subscribe({
       next: (response) => {
         console.log('Login exitoso:', response);
-        const token = response.token
-        const user:User = response.user
-        localStorage.setItem('access_token', token);
-        loginData.accesToken = token;
-        console.log(loginData);
-        const payload = JSON.parse(atob(token.split(".")[1]));
-        console.log("Expira a:", new Date(payload.exp * 1000));
-        this.authService.getRefreshToken(loginData).subscribe({
-          next: (response) => {
-            const token = response.token
-            localStorage.setItem('refresh_token', token);
-            const payload = JSON.parse(atob(token.split(".")[1]));
-            console.log("Refresh token expira en:", new Date(payload.exp * 1000));
-          }
-        })
+        const accesToken = response.accesToken;
+        const refreshToken = response.refreshToken;
+        const user:User = response.user;
+        localStorage.setItem('access_token', accesToken);
+        localStorage.setItem('refresh_token', refreshToken);
+        const exp1 = JSON.parse(atob(accesToken.split(".")[1]));
+        console.log("L'acces token expira a:", new Date(exp1.exp * 1000));
+        const exp2 = JSON.parse(atob(refreshToken.split(".")[1]));
+        console.log("El refresh token expira a:", new Date(exp2.exp * 1000));
         this.exportLoggedIn.emit(true);
       },
       error: (error) => {
